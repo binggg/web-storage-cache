@@ -16,6 +16,7 @@
     "use strict";
 
     var _maxExpireDate = new Date('Fri, 31 Dec 9999 23:59:59 UTC');
+    // 年可以设置9999？
     var _defaultExpire = _maxExpireDate;
 
     // https://github.com/jeromegn/Backbone.localStorage/blob/master/backbone.localStorage.js#L63
@@ -61,6 +62,7 @@
     // get storage instance
     function _getStorageInstance (storage) {
         var type = typeof storage;
+        // 为什么type === string
         if (type === 'string' && window[storage] instanceof Storage) {
             return window[storage];
         }
@@ -177,13 +179,16 @@
             key = _checkAndWrapKeyAsString(key);
 
             options = _extend({force: true}, options);
-
+            
+            // 设置值为空时，删除旧的
             if (val === undefined) {
                 return this.delete(key);
             }
-
+            
+            // 序列化不会报错么？
+            // 比如JSON.stringify(window)
             var value = defaultSerializer.serialize(val);
-
+            
             var cacheItem = new CacheItemConstructor(value, options.exp);
             try {
                 this.storage.setItem(key, defaultSerializer.serialize(cacheItem));
@@ -337,7 +342,8 @@ function CacheConstructor (options) {
     if (isSupported) {
 
         this.storage = storage;
-
+        
+        // 超出存储大小限制
         this.quotaExceedHandler = function (key, val, options, e) {
             console.warn('Quota exceeded!');
             if (options && options.force === true) {
@@ -352,7 +358,9 @@ function CacheConstructor (options) {
             }
         };
 
-    } else {  // if not support, rewrite all functions without doing anything
+    } else {  
+        // if not support, rewrite all functions without doing anything
+        // 不支持的时候为什么要重写成空的？为了安全？
         _extend(this, CacheAPI);
     }
 
